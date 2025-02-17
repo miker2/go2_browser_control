@@ -10,6 +10,9 @@ SYSTEMD_SERVICE_DIR="/etc/systemd/system"
 # Conda environment name
 ENV_NAME="robot-control"
 
+# Install dependencies for go2_webrtc_connect
+sudo apt-get update && sudo apt-get install -y portaudio19-dev
+
 # Create or update conda environment
 if conda env list | grep -q "$ENV_NAME"; then
   echo "Updating conda environment '$ENV_NAME'..."
@@ -22,6 +25,9 @@ fi
 # Activate conda environment
 eval "$(conda shell.bash hook)"  # Important for conda to work in the script
 conda activate "$ENV_NAME"
+
+# Install this additional python package that can't be installed via conda
+# pip install git+https://github.com/legion1581/go2_webrtc_connect.git
 
 # Copy service file and enable/start service
 echo "Copying service file..."

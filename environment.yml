@@ -6,7 +6,6 @@ dependencies:
   - flask
   - flask-socketio
   - pip
-
-post_install:
-  - pip install git+https://github.com/legion1581/go2_webrtc_connect.git  # Or your preferred pip install command
+  - pip:
+    - git+https://github.com/legion1581/go2_webrtc_connect.git
   
