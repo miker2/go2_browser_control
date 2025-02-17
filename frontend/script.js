@@ -84,6 +84,16 @@ recognition.onresult = (event) => {
         command = "right";
     } else if (transcript.includes("stop")) {
         command = "stop";
+    } else if (transcript.includes("sit")) {
+        command = "sit";
+    } else if (transcript.includes("stand")) {
+        command = "stand";
+    } else if (transcript.includes("dance")) {
+        command = "dance";
+    } else if (transcript.includes("pounce")) {
+        command = "pounce";
+    } else if (transcript.includes("jump")) {
+        command = "jump";
     }
 
     if (command) {
