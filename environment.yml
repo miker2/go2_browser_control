@@ -3,8 +3,10 @@ channels:
   - conda-forge
 dependencies:
   - python=3.12
+  - eventlet
   - flask
   - flask-socketio
+  - gunicorn
   - jinja2
   - requests
   - uwsgi

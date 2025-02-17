@@ -39,6 +39,8 @@ echo -e "\n*****"
 echo "Copying and enabling Lighttpd config..."
 sudo cp "$SERVICE_FILE" "/etc/lighttpd/conf-available/"
 sudo lighttpd-enable-mod fastcgi
+sudo lighttpd-enable-mod proxy
+sudo lighttpd-enable-mod proxy-balancer
 sudo lighttpd-enable-mod robot-control
 sudo systemctl restart lighttpd
 

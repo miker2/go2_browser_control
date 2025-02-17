@@ -1,18 +1,40 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Robot Control</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, orientation=landscape">
+    <title>Robot Controller</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.9.0/dist/nipplejs.min.js"></script>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <div id="joystick-area">
-        <div id="joystick1"></div>
-        <div id="joystick2"></div>
-    </div>
-    <button id="speech-button">Start Listening</button>
 
-    <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.9.0/dist/nipplejs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.0/socket.io.js"></script>
-    <script src="script.js"></script>
+    <h1>Robot Controller</h1>
+
+    <!-- Joystick Zones -->
+    <div id="joystick-zone-left" class="joystick-zone"></div>
+    <div id="joystick-zone-right" class="joystick-zone"></div>
+
+    <!-- Joystick Feedback -->
+    <div id="joystick-feedback-left" class="joystick-feedback"></div>
+    <div id="joystick-feedback-right" class="joystick-feedback"></div>
+
+    <!-- Buttons -->
+    <div class="button-container">
+        <button id="voice-button" class="control-button">🎤 Voice</button>
+        <button id="action-button" class="control-button">🔥 Action</button>
+    </div>
+
+    <!-- Bottom Right Buttons -->
+    <div class="corner-buttons">
+        <button id="sit-button" class="control-button">🪑 Sit</button>
+        <button id="stand-button" class="control-button">📏 Stand</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
 </body>
 </html>

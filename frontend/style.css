@@ -1,18 +1,86 @@
-#joystick-area {
-    display: flex; /* Arrange joysticks side by side */
-    position: relative; /* Needed for absolute positioning of joysticks */
-    width: 200px; /* Adjust as needed */
-    height: 200px; /* Adjust as needed */
+body {
+    margin: 0;
+    overflow: hidden;
+    background: #222;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
 }
 
-#joystick1, #joystick2 {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%; /* Make joysticks circular */
-    background-color: lightgray;
-    position: absolute; /* Allow dynamic positioning */
+.joystick-zone {
+    position: fixed;
+    width: 50vw;
+    height: 100vh;
+    top: 0;
 }
 
-.nipple { /* Style for the NippleJS joystick */
+#joystick-zone-left { left: 0; }
+#joystick-zone-right { right: 0; }
+
+.joystick-feedback {
     position: absolute;
+    width: 30px;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    display: none;
+    transform: translate(-50%, -50%);
+}
+
+.button-container {
+    position: fixed;
+    bottom: 10%;
+    left: 10%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.corner-buttons {
+    position: fixed;
+    bottom: 10%;
+    right: 5%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.control-button {
+    padding: 15px 30px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    width: 120px;
+}
+
+#voice-button {
+    background: orange;
+}
+
+#action-button {
+    background: red;
+}
+
+#sit-button {
+    background: blue;
+}
+
+#stand-button {
+    background: green;
+}
+
+.control-button.active {
+    filter: brightness(0.7);
+}
+
+#voice-button.listening {
+    background: yellow;
 }

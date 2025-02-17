@@ -1,112 +1,75 @@
-const joystickArea = document.getElementById('joystick-area');
-let socket = io('ws://' + window.location.hostname + ':5000'); // Dynamic server address
+var socket = io();
 
-function createJoystick(joystickId) {
-    const joystick = document.getElementById(joystickId);
-    const nipple = new Nipple({
-        zone: joystick,
-        mode: 'static',
-        position: { left: '50%', top: '50%' },
-        size: 100,
-        color: 'gray'
+let leftJoystick, rightJoystick;
+let leftFeedback = document.getElementById('joystick-feedback-left');
+let rightFeedback = document.getElementById('joystick-feedback-right');
+
+function createJoystick(zone, event, side) {
+    let touch = event.touches[0]; 
+    let joystick = nipplejs.create({
+        zone: zone,
+        mode: 'dynamic',
+        position: { left: touch.clientX + "px", top: touch.clientY + "px" },
+        color: side === 'left' ? 'blue' : 'red'
     });
 
-    nipple.on('move', (evt, data) => {
-        if (data && data.vector) {
-            const x = data.vector.x;
-            const y = data.vector.y;
-            socket.emit('joystick', { joystick: joystickId, x, y });
-        }
+    let feedback = side === 'left' ? leftFeedback : rightFeedback;
+    feedback.style.display = 'block';
+
+    joystick.on('move', function(evt, data) {
+        socket.emit(side === 'left' ? 'move' : 'rotate', { x: data.vector.x, y: data.vector.y });
+
+        feedback.style.left = (touch.clientX + data.vector.x * 30) + "px";
+        feedback.style.top = (touch.clientY + data.vector.y * 30) + "px";
     });
 
-    nipple.on('end', () => {
-      socket.emit('joystick', { joystick: joystickId, x: 0, y: 0 }); // Reset on release
-    })
+    joystick.on('end', function() {
+        joystick.destroy();
+        feedback.style.display = 'none';
+    });
 
-    return nipple;
+    return joystick;
 }
 
-joystickArea.addEventListener('touchstart', (event) => {
-    if (event.target === joystickArea) {
-        const touch = event.touches[0];
-        const joystick1Rect = document.getElementById('joystick1').getBoundingClientRect();
-        const joystick2Rect = document.getElementById('joystick2').getBoundingClientRect();
+document.getElementById('joystick-zone-left').addEventListener('touchstart', function(event) {
+    if (!leftJoystick) leftJoystick = createJoystick(this, event, 'left');
+}, { passive: false });
 
-        if (!joystick1Rect.width) {
-            document.getElementById('joystick1').style.left = (touch.clientX - 50) + 'px';
-            document.getElementById('joystick1').style.top = (touch.clientY - 50) + 'px';
-            createJoystick('joystick1');
-        } else if (!joystick2Rect.width) {
-            document.getElementById('joystick2').style.left = (touch.clientX - 50) + 'px';
-            document.getElementById('joystick2').style.top = (touch.clientY - 50) + 'px';
-            createJoystick('joystick2');
-        }
-    }
-}, {once: true});
+document.getElementById('joystick-zone-right').addEventListener('touchstart', function(event) {
+    if (!rightJoystick) rightJoystick = createJoystick(this, event, 'right');
+}, { passive: false });
 
+// Button Events
+document.getElementById('voice-button').addEventListener('click', function() {
+    let recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    let button = this;
+    button.classList.add("listening");
+    recognition.start();
 
-// Speech Recognition
-const speechButton = document.getElementById('speech-button');
-let listening = false;
+    recognition.onresult = function(event) {
+        let command = event.results[0][0].transcript;
+        socket.emit('voice', { command: command });
+        button.classList.remove("listening");
+    };
 
-const recognition = new webkitSpeechRecognition() || new SpeechRecognition();
-recognition.continuous = false;
-recognition.interimResults = false;
-
-recognition.onstart = () => {
-    listening = true;
-    speechButton.textContent = "Stop Listening";
-};
-
-recognition.onend = () => {
-    listening = false;
-    speechButton.textContent = "Start Listening";
-};
-
-recognition.onerror = (event) => {
-    console.error("Speech recognition error:", event.error);
-    listening = false;
-    speechButton.textContent = "Start Listening";
-};
-
-recognition.onresult = (event) => {
-    const transcript = event.results[0][0].transcript.toLowerCase();
-    console.log("Speech recognized:", transcript);
-
-    let command = null;
-    if (transcript.includes("forward")) {
-        command = "forward";
-    } else if (transcript.includes("backward")) {
-        command = "backward";
-    } else if (transcript.includes("left")) {
-        command = "left";
-    } else if (transcript.includes("right")) {
-        command = "right";
-    } else if (transcript.includes("stop")) {
-        command = "stop";
-    } else if (transcript.includes("sit")) {
-        command = "sit";
-    } else if (transcript.includes("stand")) {
-        command = "stand";
-    } else if (transcript.includes("dance")) {
-        command = "dance";
-    } else if (transcript.includes("pounce")) {
-        command = "pounce";
-    } else if (transcript.includes("jump")) {
-        command = "jump";
-    }
-
-    if (command) {
-        socket.emit('command', command);
-    } else {
-      console.log("No matching command found")
-    }
-};
-
-speechButton.addEventListener('click', () => {
-    if (!listening) {
-        recognition.start();
-    } else {
-        recognition.stop();
-    }
+    recognition.onerror = function() {
+        button.classList.remove("listening");
+    };
 });
+
+function setupButton(buttonId, eventName) {
+    let button = document.getElementById(buttonId);
+    button.addEventListener('touchstart', function() {
+        this.classList.add("active");
+        socket.emit(eventName, { pressed: true });
+    });
+
+    button.addEventListener('touchend', function() {
+        this.classList.remove("active");
+        socket.emit(eventName, { pressed: false });
+    });
+}
+
+setupButton('action-button', 'action');
+setupButton('sit-button', 'sit');
+setupButton('stand-button', 'stand');
