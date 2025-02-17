@@ -19,7 +19,7 @@ def generate_service_file(project_path, env_name, user):
     # 1. Jinja2 Environment and Template Loading
     template_dir = os.path.dirname(os.path.abspath(__file__)) # Directory where script is
     env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
-    template = env.get_template("robot-control.service.j2")  # Template file name
+    template = env.get_template("robot-control.conf.j2")  # Template file name
 
     # 2. Context for the Template
     context = {

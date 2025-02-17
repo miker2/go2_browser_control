@@ -8,7 +8,7 @@ SERVICE_FILE="$PROJECT_DIR/robot-control.conf"
 SYSTEMD_SERVICE_DIR="/etc/systemd/system"
 
 # Conda environment name
-ENV_NAME="robot-control"
+ENV_NAME="go2-web-control"
 
 
 sudo apt-get update

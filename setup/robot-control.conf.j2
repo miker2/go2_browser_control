@@ -9,7 +9,8 @@ server.document-root = "{{ project_path }}/frontend"
 fastcgi.server = (
     "/robot" => (  # URL path that will be handled by Flask
         (
-            "bin-path" => "{{ env_path }}/bin/python {{ project_path }}/backend/app.py", # Path to your Flask app (make sure it runs with FastCGI)
+            # Path to your Flask app (make sure it runs with FastCGI)
+            "bin-path" => "{{ env_path }}/bin/python {{ project_path }}/backend/app.py",
             "socket" => "/tmp/robot-control.sock",  # Unix socket for communication
             "min-procs" => 1,
             "max-procs" => 3, # Adjust number of processes as needed
