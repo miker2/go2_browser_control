@@ -1,4 +1,10 @@
+server.modules += ( "mod_access" )
+server.modules += ( "mod_alias" )
+server.modules += ( "mod_compress" )
+server.modules += ( "mod_redirect" )
+server.modules += ( "mod_rewrite" )
 server.modules += ( "mod_fastcgi" )
+server.modules += ( "mod_auth" )
 server.modules += ( "mod_static" )
 
 # Static files (HTML, CSS, JS)
@@ -10,7 +16,7 @@ fastcgi.server = (
     "/robot" => (  # URL path that will be handled by Flask
         (
             # Path to your Flask app (make sure it runs with FastCGI)
-            "bin-path" => "{{ env_path }}/bin/python {{ project_path }}/backend/app.py",
+            "bin-path" => "{{ env_path }}/bin/python {{ project_path }}/backend/wsgi.py",
             "socket" => "/tmp/robot-control.sock",  # Unix socket for communication
             "min-procs" => 1,
             "max-procs" => 3, # Adjust number of processes as needed

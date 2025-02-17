@@ -18,10 +18,10 @@ sudo apt-get install -y portaudio19-dev
 
 # Create or update conda environment
 if conda env list | grep -q "$ENV_NAME"; then
-  echo "Updating conda environment '$ENV_NAME'..."
+  echo -e "\n*****\nUpdating conda environment '$ENV_NAME'...\n*****\n"
   conda env update -f "$PROJECT_DIR/environment.yml" --prune # --prune removes old packages
 else
-  echo "Creating conda environment '$ENV_NAME'..."
+  echo "\n*****\nCreating conda environment '$ENV_NAME'...\n*****\n"
   conda env create -f "$PROJECT_DIR/environment.yml"
 fi
 
@@ -35,8 +35,10 @@ conda activate "$ENV_NAME"
 python setup/generate_service.py -o "$SERVICE_FILE"
 
 # Copy Lighttpd config file and enable
+echo -e "\n*****"
 echo "Copying and enabling Lighttpd config..."
 sudo cp "$SERVICE_FILE" "/etc/lighttpd/conf-available/"
+sudo lighttpd-enable-mod fastcgi
 sudo lighttpd-enable-mod robot-control
 sudo systemctl restart lighttpd
 

@@ -6,6 +6,8 @@ dependencies:
   - flask
   - flask-socketio
   - jinja2
+  - requests
+  - uwsgi
   - pip
   - pip:
     - flup
