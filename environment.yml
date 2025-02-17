@@ -5,6 +5,7 @@ dependencies:
   - python=3.12
   - flask
   - flask-socketio
+  - jinja2
   - pip
   - pip:
     - git+https://github.com/legion1581/go2_webrtc_connect.git

@@ -4,14 +4,17 @@
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"  # Absolute path to the directory containing this script
 BACKEND_DIR="$PROJECT_DIR/backend"
 FRONTEND_DIR="$PROJECT_DIR/frontend"
-SERVICE_FILE="$PROJECT_DIR/robot-control.service"  # Path to your systemd service file
+SERVICE_FILE="$PROJECT_DIR/robot-control.conf"
 SYSTEMD_SERVICE_DIR="/etc/systemd/system"
 
 # Conda environment name
 ENV_NAME="robot-control"
 
+
+sudo apt-get update
+sudo apt-get install -y lighttpd flup
 # Install dependencies for go2_webrtc_connect
-sudo apt-get update && sudo apt-get install -y portaudio19-dev
+sudo apt-get install -y portaudio19-dev
 
 # Create or update conda environment
 if conda env list | grep -q "$ENV_NAME"; then
@@ -29,19 +32,21 @@ conda activate "$ENV_NAME"
 # Install this additional python package that can't be installed via conda
 # pip install git+https://github.com/legion1581/go2_webrtc_connect.git
 
-# Copy service file and enable/start service
-echo "Copying service file..."
-sudo cp "$SERVICE_FILE" "$SYSTEMD_SERVICE_DIR"
+python setup/generate_service.py -o "$SERVICE_FILE"
 
-echo "Enabling and starting service..."
-sudo systemctl enable robot-control.service # Make sure service file is named robot-control.service
-sudo systemctl restart robot-control.service # Use restart to update an existing service
+# Copy Lighttpd config file and enable
+echo "Copying and enabling Lighttpd config..."
+sudo cp "$PROJECT_DIR/robot-control.conf" "/etc/lighttpd/conf-available/"
+sudo lighttpd-enable-mod robot-control
+sudo systemctl restart lighttpd
+
 
 # Copy frontend files (Optional - if you're serving them directly)
 # If you are using a reverse proxy like nginx, you may skip this step.
 echo "Copying frontend files (optional - skip if using reverse proxy)..."
 # Replace with your frontend deployment method (e.g., rsync, scp, etc.)
 # Example using rsync:
+# sudo mkdir -p "/var/www/html"  # Or your web server's directory
 # sudo rsync -avz "$FRONTEND_DIR/" "/var/www/html/" # Or your web server's directory
 
 echo "Deployment complete!"

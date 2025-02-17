@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_socketio import SocketIO, emit
+from flup.server.fcgi import WSGIServer
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*") # Important for local development
@@ -22,4 +23,5 @@ def handle_command(command):
     # ... robot control logic ...
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, host='0.0.0.0', port=5000)
+    WSGIServer(app).run() # Use WSGIServer instead of app.run()
+    # socketio.run(app, debug=True, host='0.0.0.0', port=5000) # Use this for local testing only
