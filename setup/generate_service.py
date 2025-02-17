@@ -2,7 +2,6 @@ import os
 import jinja2
 import pwd
 import argparse
-import conda.cli
 import subprocess  # For git command
 
 def generate_service_file(project_path, env_name, user):
@@ -45,26 +44,16 @@ def write_service_file(service_file_content, output_path):
     with open(output_path, "w") as f:
         f.write(service_file_content)
 
-def get_active_conda_env():
-    """Gets the name of the currently active conda environment.
+def get_active_conda_env_path():
+    """Gets the path of the currently active conda environment.
 
     Returns:
-        The name of the active conda environment, or None if no environment is active.
+        The path to the active conda environment, or None if no environment is active.
     """
-    try:
-        # Use conda info --json to get environment information
-        import json
-        result = conda.cli.main.conda_info(json=True)
-        info = json.loads(result)
-        active_env = info.get("active_conda_environment")
-        if active_env:
-            env_name = os.path.basename(active_env) # Extract just the name
-            return env_name
-        else:
-            return None
-    except Exception as e:
-        print(f"Error getting active conda environment: {e}")
-        return None
+
+    # Get the value of the CONDA_PREFIX environment variable
+    # This is the path to the active conda environment
+    return os.environ.get("CONDA_PREFIX")
 
 def get_git_root():
     """Gets the root directory of the current Git repository.
@@ -112,7 +101,7 @@ if __name__ == "__main__":
     if args.env_name:
         env_name = args.env_name
     else:
-        env_name = get_active_conda_env()
+        env_name = get_active_conda_env_path()
         if env_name is None:
             raise ValueError("No conda environment is active. Please activate one or provide the environment name with -e/--env_name.")
         else:

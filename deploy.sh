@@ -12,7 +12,7 @@ ENV_NAME="robot-control"
 
 
 sudo apt-get update
-sudo apt-get install -y lighttpd flup
+sudo apt-get install -y lighttpd
 # Install dependencies for go2_webrtc_connect
 sudo apt-get install -y portaudio19-dev
 
@@ -50,6 +50,3 @@ echo "Copying frontend files (optional - skip if using reverse proxy)..."
 # sudo rsync -avz "$FRONTEND_DIR/" "/var/www/html/" # Or your web server's directory
 
 echo "Deployment complete!"
-
-# Check service status (optional)
-sudo systemctl status robot-control.service
