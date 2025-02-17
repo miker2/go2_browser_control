@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Project paths (REPLACE THESE WITH YOUR ACTUAL PATHS)
-PROJECT_DIR="/path/to/your/project"  # Absolute path to your project directory
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"  # Absolute path to the directory containing this script
 BACKEND_DIR="$PROJECT_DIR/backend"
 FRONTEND_DIR="$PROJECT_DIR/frontend"
 SERVICE_FILE="$PROJECT_DIR/robot-control.service"  # Path to your systemd service file
