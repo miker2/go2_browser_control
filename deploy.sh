@@ -4,7 +4,7 @@
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"  # Absolute path to the directory containing this script
 BACKEND_DIR="$PROJECT_DIR/backend"
 FRONTEND_DIR="$PROJECT_DIR/frontend"
-SERVICE_FILE="$PROJECT_DIR/robot-control.conf"
+SERVICE_FILE="$PROJECT_DIR/95-robot-control.conf"
 SYSTEMD_SERVICE_DIR="/etc/systemd/system"
 
 # Conda environment name
@@ -36,7 +36,7 @@ python setup/generate_service.py -o "$SERVICE_FILE"
 
 # Copy Lighttpd config file and enable
 echo "Copying and enabling Lighttpd config..."
-sudo cp "$PROJECT_DIR/robot-control.conf" "/etc/lighttpd/conf-available/"
+sudo cp "$SERVICE_FILE" "/etc/lighttpd/conf-available/"
 sudo lighttpd-enable-mod robot-control
 sudo systemctl restart lighttpd
 
