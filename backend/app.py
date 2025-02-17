@@ -1,3 +1,5 @@
+# import eventlet
+# from eventlet import wsgi
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 from flup.server.fcgi import WSGIServer
@@ -7,10 +9,10 @@ import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FRONTEND_DIR = os.path.abspath(os.path.join(BASE_DIR, '../frontend'))
 
-app = Flask(__name__
+app = Flask(__name__,
             template_folder=os.path.join(FRONTEND_DIR, 'templates'),
             static_folder=os.path.join(FRONTEND_DIR, 'static'))
-socketio = SocketIO(app, async_mode="eventlet") # Important for local development
+socketio = SocketIO(app, cors_allowed_origins="*") # Important for local development
 
 @socketio.on('connect')
 def handle_connect():
@@ -58,5 +60,6 @@ def handle_stand(data):
     print("📏 Stand command received!")
 
 if __name__ == '__main__':
-    WSGIServer(app).run() # Use WSGIServer instead of app.run()
-    # socketio.run(app, debug=True, host='0.0.0.0', port=5000) # Use this for local testing only
+    # WSGIServer(app).run() # Use WSGIServer instead of app.run()
+    socketio.run(app, debug=True, host='0.0.0.0', port=5000) # Use this for local testing only
+    # app.run(host='0.0.0.0', port=5000, debug=True)
