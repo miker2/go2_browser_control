@@ -1,0 +1,12 @@
+[Unit]
+Description=Robot Control Server
+After=network.target
+
+[Service]
+User=michael  # Replace with your Raspberry Pi username
+WorkingDirectory=/path/to/your/project/backend  # Replace with the actual path
+ExecStart=/path/to/your/conda/envs/go2_web_control/bin/python app.py  # Path to your conda environment's python and app.py
+Restart=always  # Restart the service if it crashes
+
+[Install]
+WantedBy=multi-user.target

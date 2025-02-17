@@ -1,0 +1,18 @@
+#joystick-area {
+    display: flex; /* Arrange joysticks side by side */
+    position: relative; /* Needed for absolute positioning of joysticks */
+    width: 200px; /* Adjust as needed */
+    height: 200px; /* Adjust as needed */
+}
+
+#joystick1, #joystick2 {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%; /* Make joysticks circular */
+    background-color: lightgray;
+    position: absolute; /* Allow dynamic positioning */
+}
+
+.nipple { /* Style for the NippleJS joystick */
+    position: absolute;
+}
