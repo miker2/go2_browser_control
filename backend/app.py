@@ -39,6 +39,18 @@ def index():
 def handle_move(data):
     print(f"Move joystick: X={data['x']}, Y={data['y']}")
 
+@socketio.on("joystick_touch_start")
+def handle_joystick_touch_start(data):
+    print("joystick_touch_start", data)
+
+@socketio.on("joystick_create")
+def handle_joystick_create(data):
+    print("joystick_create", data)
+
+@socketio.on("joystick_destroy")
+def handle_joystick_destroy(data):
+    print("joystick_destroy", data)
+
 @socketio.on("rotate")
 def handle_rotate(data):
     print(f"Rotate joystick: X={data['x']}, Y={data['y']}")
@@ -49,15 +61,17 @@ def handle_action(data):
 
 @socketio.on("voice")
 def handle_voice(data):
-    print(f"🎤 Voice command received: {data['command']}")
+    print(f"🎤 Voice command received: {data['command'].lower()}")
 
 @socketio.on("sit")
 def handle_sit(data):
-    print("🪑 Sit command received!")
+    if (data["pressed"]):
+        print("🪑 Sit command received!")
 
 @socketio.on("stand")
 def handle_stand(data):
-    print("📏 Stand command received!")
+    if (data["pressed"]):
+        print("📏 Stand command received!")
 
 if __name__ == '__main__':
     # WSGIServer(app).run() # Use WSGIServer instead of app.run()
