@@ -4,7 +4,7 @@
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"  # Absolute path to the directory containing this script
 BACKEND_DIR="$PROJECT_DIR/backend"
 FRONTEND_DIR="$PROJECT_DIR/frontend"
-SERVICE_FILE="$PROJECT_DIR/robot-control.service"
+SERVICE_FILE="$PROJECT_DIR/setup/robot-control.service"
 SYSTEMD_SERVICE_DIR="/etc/systemd/system"
 
 # Conda environment name
@@ -32,15 +32,20 @@ conda activate "$ENV_NAME"
 # Install this additional python package that can't be installed via conda
 # pip install git+https://github.com/legion1581/go2_webrtc_connect.git
 
-python setup/generate_service.py -i wlan0 -o "$PROJECT_DIR"
+python setup/generate_service.py -i wlan0 -o "$PROJECT_DIR/setup"
 
-# Copy Lighttpd config file and enable
+# Copy Service config file and enable
 echo -e "\n*****"
 echo "Copying and enabling nginx config..."
 sudo cp "$SERVICE_FILE" "$SYSTEMD_SERVICE_DIR/"
 sudo systemctl daemon-reload
 sudo systemctl enable robot-control
 sudo systemctl start robot-control
+
+# Configure nginx
+sudo cp "$PROJECT_DIR/setup/robot-control.nginx" "/etc/nginx/sites-available/robot-control"
+sudo ln -s "/etc/nginx/sites-available/robot-control" "/etc/nginx/sites-enabled/"
+sudo systemctl restart nginx
 
 
 # Copy frontend files (Optional - if you're serving them directly)
