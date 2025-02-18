@@ -174,4 +174,4 @@ if __name__ == "__main__":
 
     generator = ServiceFileGenerator(project_path, env_name, user, ip_address, out_dir=output_path)
     generator.generate_service_file()
-    generator.generate_nginx_config()
+    # generator.generate_nginx_config()
