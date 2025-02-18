@@ -1,7 +1,7 @@
 # import eventlet
 # from eventlet import wsgi
 from flask import Flask, render_template
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, emit
 
 import os
 
@@ -11,11 +11,21 @@ FRONTEND_DIR = os.path.abspath(os.path.join(BASE_DIR, '../frontend'))
 app = Flask(__name__,
             template_folder=os.path.join(FRONTEND_DIR, 'templates'),
             static_folder=os.path.join(FRONTEND_DIR, 'static'))
-socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*") # Important for local development
+socketio = SocketIO(
+    app, 
+    cors_allowed_origins="*", # Important for local development
+    async_mode='eventlet', 
+)
 
-@socketio.on('connect')
-def handle_connect():
+@socketio.on('connect-to-robot')
+def handle_connect(data):
     print('Client connected')
+    # Execute the code here to connect to the WebRTC client and
+    # Display info to the user during the connection process.
+    # Once the connection is established, send a message to the client
+    # and render the control.html template.
+
+    emit('render_response', { 'data': "connection info here!" })
 
 @socketio.on('joystick')
 def handle_joystick(data):
@@ -25,18 +35,21 @@ def handle_joystick(data):
     print(f"Joystick {joystick}: x={x}, y={y}")
     # ... robot control logic ...
 
-@socketio.on('command')
-def handle_command(command):
-    print(f"Received command: {command}")
-    # ... robot control logic ...
-
 @app.route('/')
 def index():
     return render_template('index.html')
 
+@app.route('/control')
+def control():
+    return render_template('control.html')
+
 @socketio.on("move")
 def handle_move(data):
     print(f"Move joystick: X={data['x']}, Y={data['y']}")
+
+@socketio.on("rotate")
+def handle_rotate(data):
+    print(f"Rotate joystick: X={data['x']}, Y={data['y']}")
 
 @socketio.on("joystick_touch_start")
 def handle_joystick_touch_start(data):
@@ -50,9 +63,10 @@ def handle_joystick_create(data):
 def handle_joystick_destroy(data):
     print("joystick_destroy", data)
 
-@socketio.on("rotate")
-def handle_rotate(data):
-    print(f"Rotate joystick: X={data['x']}, Y={data['y']}")
+@socketio.on('command')
+def handle_command(command):
+    print(f"Received command: {command}")
+    # ... robot control logic ...
 
 @socketio.on("action")
 def handle_action(data):

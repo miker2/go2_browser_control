@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, orientation=landscape">
+    <title>Robot Controller</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.9.0/dist/nipplejs.min.js"></script>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <h1>Robot Controller</h1>
+
+    <!-- Joystick Zones -->
+    <div id="joystick-zone-left" class="joystick-zone"></div>
+    <div id="joystick-zone-right" class="joystick-zone"></div>
+
+    <!-- Joystick Feedback -->
+    <div id="joystick-feedback-left" class="joystick-feedback"></div>
+    <div id="joystick-feedback-right" class="joystick-feedback"></div>
+
+    <!-- Buttons -->
+    <div class="button-container">
+        <button id="voice-button" class="control-button">🎤 Voice</button>
+        <button id="action-button" class="control-button">🔥 Action</button>
+        <button id="sit-button" class="control-button">🪑 Sit</button>
+        <button id="stand-button" class="control-button">📏 Stand</button>
+        <!-- Add a dropdown for selecting a specific action -->
+        <select id="action-select" class="action-dropdown">
+            <option value="dance">🕺 Dance</option>
+            <option value="pounce">🐯 Pounce</option>
+            <option value="greet">👋 Greet</option>
+            <option value="jump">🪂 Jump</option>
+            <option value="love">❤️ Love</option>
+        </select>
+        <button id="execute-button" class="control-button">🚀 Execute</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>
