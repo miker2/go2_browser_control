@@ -18,7 +18,7 @@ body {
 .joystick-zone {
     position: fixed;
     width: 50vw;
-    height: 100vh;
+    height: 85%;
     top: 0;
     border: 3px solid rgba(255, 255, 255, 0.7); /* Outline for joystick areas */
     box-sizing: border-box; /* Ensures border doesn't affect layout */
