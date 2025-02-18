@@ -1,0 +1,13 @@
+[Unit]
+Description=Flask Web App with Gunicorn
+After=network.target
+
+[Service]
+User={{ user }}
+Group={{ user}}
+WorkingDirectory={{ project_path }}/backend
+ExecStart=/bin/bash {{ project_path }}/backend/start.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

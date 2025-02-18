@@ -32,7 +32,7 @@ conda activate "$ENV_NAME"
 # Install this additional python package that can't be installed via conda
 # pip install git+https://github.com/legion1581/go2_webrtc_connect.git
 
-python setup/generate_service.py -o "$SERVICE_FILE"
+python setup/generate_service.py -i wlan0 -o "$PROJECT_DIR"
 
 # Copy Lighttpd config file and enable
 echo -e "\n*****"
