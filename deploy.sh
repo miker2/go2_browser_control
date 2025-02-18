@@ -39,8 +39,8 @@ echo -e "\n*****"
 echo "Copying and enabling nginx config..."
 sudo cp "$SERVICE_FILE" "$SYSTEMD_SERVICE_DIR/"
 sudo systemctl daemon-reload
-sudo systemctl enable robot-control
-sudo systemctl start robot-control
+sudo systemctl enable robot-control.service
+sudo systemctl start robot-control.service
 
 # Configure nginx
 sudo cp "$PROJECT_DIR/setup/robot-control.nginx" "/etc/nginx/sites-available/robot-control"
