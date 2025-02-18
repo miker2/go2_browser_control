@@ -26,12 +26,17 @@
     <div class="button-container">
         <button id="voice-button" class="control-button">🎤 Voice</button>
         <button id="action-button" class="control-button">🔥 Action</button>
-    </div>
-
-    <!-- Bottom Right Buttons -->
-    <div class="corner-buttons">
         <button id="sit-button" class="control-button">🪑 Sit</button>
         <button id="stand-button" class="control-button">📏 Stand</button>
+        <!-- Add a dropdown for selecting a specific action -->
+        <select id="action-select" class="action-dropdown">
+            <option value="dance">🕺 Dance</option>
+            <option value="pounce">🐯 Pounce</option>
+            <option value="greet">👋 Greet</option>
+            <option value="jump">🪂 Jump</option>
+            <option value="love">❤️ Love</option>
+        </select>
+        <button id="execute-button" class="control-button">🚀 Execute</button>
     </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>

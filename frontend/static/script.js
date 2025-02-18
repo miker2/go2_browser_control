@@ -1,5 +1,11 @@
 var socket = io();
 
+function isTouchDevice() {
+    return (('ontouchstart' in window) ||
+       (navigator.maxTouchPoints > 0) ||
+       (navigator.msMaxTouchPoints > 0));
+}
+
 let leftFeedback = document.getElementById('joystick-feedback-left');
 let rightFeedback = document.getElementById('joystick-feedback-right');
 
@@ -91,21 +97,44 @@ document.getElementById('voice-button').addEventListener('click', function() {
     };
 });
 
-function setupButton(buttonId, eventName) {
+function setupButton(buttonId, eventName, hold) {
+    var touch_start = 'mousedown';
+    var touch_end = 'mouseup';
+    if (isTouchDevice()) {
+        touch_start = 'touchstart';
+        touch_end = 'touchend';
+    }
     let button = document.getElementById(buttonId);
-    button.addEventListener('touchstart', function() {
+    button.addEventListener(touch_start, function() {
         this.classList.add("active");
-        console.log(eventName, 'pressed');
-        socket.emit(eventName, { pressed: true });
+        if (hold) {
+            console.log(eventName, 'pressed');
+            socket.emit(eventName, { pressed: true });
+        }
     });
 
-    button.addEventListener('touchend', function() {
+    button.addEventListener(touch_end, function() {
         this.classList.remove("active");
-        console.log(eventName, 'released');
-        socket.emit(eventName, { pressed: false });
+        if (hold) {
+            console.log(eventName, 'released');
+            socket.emit(eventName, { pressed: false });
+        }
     });
+
+    if (!hold) {
+        button.addEventListener('click', function() {
+            console.log(eventName, 'clicked');
+            socket.emit(eventName, { pressed: true });
+        });    
+    }
 }
 
-setupButton('action-button', 'action');
-setupButton('sit-button', 'sit');
-setupButton('stand-button', 'stand');
+setupButton('action-button', 'action', true);
+setupButton('sit-button', 'sit', false);
+setupButton('stand-button', 'stand', false);
+
+document.getElementById('execute-button').addEventListener('click', function() {
+    let command = document.getElementById('action-select').value;
+    console.log('Command:', command);
+    socket.emit('command', { command: command });
+});
