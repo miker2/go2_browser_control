@@ -8,8 +8,8 @@ dependencies:
   - flask-socketio
   - gunicorn
   - jinja2
+  - netifaces
   - requests
-  - uwsgi
   - pip
   - pip:
     - flup

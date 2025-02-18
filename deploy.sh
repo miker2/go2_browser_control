@@ -4,7 +4,7 @@
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"  # Absolute path to the directory containing this script
 BACKEND_DIR="$PROJECT_DIR/backend"
 FRONTEND_DIR="$PROJECT_DIR/frontend"
-SERVICE_FILE="$PROJECT_DIR/95-robot-control.conf"
+SERVICE_FILE="$PROJECT_DIR/robot-control.service"
 SYSTEMD_SERVICE_DIR="/etc/systemd/system"
 
 # Conda environment name
@@ -12,7 +12,7 @@ ENV_NAME="go2-web-control"
 
 
 sudo apt-get update
-sudo apt-get install -y lighttpd
+sudo apt-get install -y nginx
 # Install dependencies for go2_webrtc_connect
 sudo apt-get install -y portaudio19-dev
 
@@ -36,18 +36,16 @@ python setup/generate_service.py -o "$SERVICE_FILE"
 
 # Copy Lighttpd config file and enable
 echo -e "\n*****"
-echo "Copying and enabling Lighttpd config..."
-sudo cp "$SERVICE_FILE" "/etc/lighttpd/conf-available/"
-sudo lighttpd-enable-mod fastcgi
-sudo lighttpd-enable-mod proxy
-sudo lighttpd-enable-mod proxy-balancer
-sudo lighttpd-enable-mod robot-control
-sudo systemctl restart lighttpd
+echo "Copying and enabling nginx config..."
+sudo cp "$SERVICE_FILE" "$SYSTEMD_SERVICE_DIR/"
+sudo systemctl daemon-reload
+sudo systemctl enable robot-control
+sudo systemctl start robot-control
 
 
 # Copy frontend files (Optional - if you're serving them directly)
 # If you are using a reverse proxy like nginx, you may skip this step.
-echo "Copying frontend files (optional - skip if using reverse proxy)..."
+# echo "Copying frontend files (optional - skip if using reverse proxy)..."
 # Replace with your frontend deployment method (e.g., rsync, scp, etc.)
 # Example using rsync:
 # sudo mkdir -p "/var/www/html"  # Or your web server's directory

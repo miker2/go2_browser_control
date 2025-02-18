@@ -1,8 +1,7 @@
 # import eventlet
 # from eventlet import wsgi
 from flask import Flask, render_template
-from flask_socketio import SocketIO, emit
-from flup.server.fcgi import WSGIServer
+from flask_socketio import SocketIO
 
 import os
 
@@ -12,7 +11,7 @@ FRONTEND_DIR = os.path.abspath(os.path.join(BASE_DIR, '../frontend'))
 app = Flask(__name__,
             template_folder=os.path.join(FRONTEND_DIR, 'templates'),
             static_folder=os.path.join(FRONTEND_DIR, 'static'))
-socketio = SocketIO(app, cors_allowed_origins="*") # Important for local development
+socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*") # Important for local development
 
 @socketio.on('connect')
 def handle_connect():
