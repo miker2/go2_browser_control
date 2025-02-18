@@ -1,69 +1,60 @@
 var socket = io();
 
-let leftJoystick, rightJoystick;
 let leftFeedback = document.getElementById('joystick-feedback-left');
 let rightFeedback = document.getElementById('joystick-feedback-right');
 
-function createJoystick(zone, event, side) {
-    if (event.touches.length === 0) {
-        console.error("No touches found in event");
-        return null;
-    }
+// Create left joystick
+var leftJoystick = nipplejs.create({
+    zone: document.getElementById('joystick-zone-left'),
+    color: 'blue',
+    mode: 'dynamic'
+});
 
-    let touch = event.touches[0]; 
-    let joystick = nipplejs.create({
-        zone: zone,
-        mode: 'dynamic',
-        position: { left: touch.clientX + "px", top: "-" + touch.clientY + "px" },
-        color: side === 'left' ? 'blue' : 'red'
-    });
-    if (!joystick) {
-        console.error("Failed to create joystick");
-        return null;
-    }
+// Listen for move events on left joystick
+leftJoystick.on('move', function(evt, data) {
+    console.log("Left Joystick Move", data);
+    socket.emit('move', { x: data.vector.x, y: data.vector.y });
 
-    socket.emit("joystick_create", { side: side, zone: zone, position: {left: touch.clientX, top: touch.clientY} })
+    leftFeedback.style.display = 'block';
+    leftFeedback.style.left = ( data.clientX + data.vector.x * 30) + "px";
+    leftFeedback.style.top = ( data.clientY + data.vector.y * 30) + "px";
+});
 
-    // let feedback = side === 'left' ? leftFeedback : rightFeedback;
-    // feedback.style.display = 'block';
+leftJoystick.on('end', function() {
+    socket.emit("joystick_destroy", { side: "left" })
+    leftFeedback.style.display = 'none';
+});
 
-    joystick.on('move', function(evt, data) {
-        socket.emit(side === 'left' ? 'move' : 'rotate', { x: data.vector.x, y: data.vector.y });
+// Create right joystick
+var rightJoystick = nipplejs.create({
+    zone: document.getElementById('joystick-zone-right'),
+    color: 'red',
+    mode: 'dynamic'
+});
 
-        // feedback.style.left = (touch.clientX + data.vector.x * 30) + "px";
-        // feedback.style.top = (touch.clientY + data.vector.y * 30) + "px";
-    });
+// Listen for move events on right joystick
+rightJoystick.on('move', function(evt, data) {
+    console.log("Right Joystick Move", data);
+    socket.emit('rotate', { x: data.vector.x, y: data.vector.y });
 
-    joystick.on('end', function() {
-        joystick.destroy();
-        joystick = null;
-        if (side === 'left') leftJoystick = null;
-        else rightJoystick = null;
-        // feedback.style.display = 'none';
-        socket.emit("joystick_destroy", { side: side, zone: zone, joystick: !!joystick })
+    rightFeedback.style.display = 'block';
+    rightFeedback.style.left = ( data.clientX + data.vector.x * 30) + "px";
+    rightFeedback.style.top = ( data.clientY + data.vector.y * 30) + "px";
+});
 
-    });
+rightJoystick.on('end', function() {
+    socket.emit("joystick_destroy", { side: "right" })
+    rightFeedback.style.display = 'none';
+});
 
-    return joystick;
-}
-
-document.getElementById('joystick-zone-left').addEventListener('touchstart', function(event) {
-    socket.emit("joystick_active", { active: true, side: "left", 
-        joystick_exists: !!leftJoystick, 
-        x: event.touches[0].clientX, y: event.touches[0].clientY });
-    if (!leftJoystick) leftJoystick = createJoystick(this, event, 'left');
-}, { passive: false });
-
-document.getElementById('joystick-zone-right').addEventListener('touchstart', function(event) {
-    socket.emit("joystick_active", { active: true, side: "right", 
-        joystick_exists: !!leftJoystick, 
-        x: event.touches[0].clientX, y: event.touches[0].clientY });
-    if (!rightJoystick) rightJoystick = createJoystick(this, event, 'right');
-}, { passive: false });
+document.getElementById('joystick-zone-left').addEventListener('touchend', function(event) {
+    socket.emit("joystick_destroy", { side: "left", joystick: !!leftJoystick });
+});
 
 document.getElementById('joystick-zone-right').addEventListener('touchend', function(event) {
     socket.emit("joystick_destroy", { side: "right", joystick: !!rightJoystick });
 });
+
 
 // Button Events
 var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
