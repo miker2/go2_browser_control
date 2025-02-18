@@ -9,49 +9,32 @@ function isTouchDevice() {
 let leftFeedback = document.getElementById('joystick-feedback-left');
 let rightFeedback = document.getElementById('joystick-feedback-right');
 
-// Create left joystick
-var leftJoystick = nipplejs.create({
-    zone: document.getElementById('joystick-zone-left'),
-    color: 'blue',
-    mode: 'dynamic'
-});
+function createJoystick(side, color, signal, feedback) {
+    var joystick = nipplejs.create({
+        zone: document.getElementById('joystick-zone-' + side),
+        color: color,
+        mode: 'dynamic'
+    });
 
-// Listen for move events on left joystick
-leftJoystick.on('move', function(evt, data) {
-    console.log("Left Joystick Move", data);
-    socket.emit('move', { x: data.vector.x, y: data.vector.y });
+    joystick.on('move', function(evt, data) {
+        console.log(side + " Joystick Move", data);
+        socket.emit(signal, { x: data.vector.x, y: data.vector.y });
 
-    // leftFeedback.style.display = 'block';
-    leftFeedback.style.left = ( data.clientX + data.vector.x * 30) + "px";
-    leftFeedback.style.top = ( data.clientY + data.vector.y * 30) + "px";
-});
+        feedback.style.display = 'block';
+        feedback.style.left = ( data.position.x + data.vector.x * 30) + "px";
+        feedback.style.top = ( data.position.y - data.vector.y * 30) + "px";
+    });
 
-leftJoystick.on('end', function() {
-    socket.emit("joystick_destroy", { side: "left" })
-    leftFeedback.style.display = 'none';
-});
+    joystick.on('end', function() {
+        console.log(side + " Joystick End");
+        socket.emit("joystick_destroy", { side: side });
+        feedback.style.display = 'none';
+    });
+}
 
-// Create right joystick
-var rightJoystick = nipplejs.create({
-    zone: document.getElementById('joystick-zone-right'),
-    color: 'red',
-    mode: 'dynamic'
-});
+var leftJoystick = createJoystick('left', 'blue', 'move', leftFeedback);
+var rightJoystick = createJoystick('right', 'red', 'rotate', rightFeedback);
 
-// Listen for move events on right joystick
-rightJoystick.on('move', function(evt, data) {
-    console.log("Right Joystick Move", data);
-    socket.emit('rotate', { x: data.vector.x, y: data.vector.y });
-
-    // rightFeedback.style.display = 'block';
-    rightFeedback.style.left = ( data.clientX + data.vector.x * 30) + "px";
-    rightFeedback.style.top = ( data.clientY + data.vector.y * 30) + "px";
-});
-
-rightJoystick.on('end', function() {
-    socket.emit("joystick_destroy", { side: "right" })
-    rightFeedback.style.display = 'none';
-});
 
 document.getElementById('joystick-zone-left').addEventListener('touchend', function(event) {
     socket.emit("joystick_destroy", { side: "left", joystick: !!leftJoystick });
