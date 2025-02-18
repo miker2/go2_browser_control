@@ -45,6 +45,7 @@ sudo systemctl start robot-control.service
 # Configure nginx
 sudo cp "$PROJECT_DIR/setup/robot-control.nginx" "/etc/nginx/sites-available/robot-control"
 sudo ln -s "/etc/nginx/sites-available/robot-control" "/etc/nginx/sites-enabled/"
+sudo rm "/etc/nginx/sites-enabled/default"  # Remove default site
 sudo systemctl restart nginx
 
 
