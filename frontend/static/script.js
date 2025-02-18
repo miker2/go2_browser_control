@@ -15,7 +15,7 @@ leftJoystick.on('move', function(evt, data) {
     console.log("Left Joystick Move", data);
     socket.emit('move', { x: data.vector.x, y: data.vector.y });
 
-    leftFeedback.style.display = 'block';
+    // leftFeedback.style.display = 'block';
     leftFeedback.style.left = ( data.clientX + data.vector.x * 30) + "px";
     leftFeedback.style.top = ( data.clientY + data.vector.y * 30) + "px";
 });
@@ -37,7 +37,7 @@ rightJoystick.on('move', function(evt, data) {
     console.log("Right Joystick Move", data);
     socket.emit('rotate', { x: data.vector.x, y: data.vector.y });
 
-    rightFeedback.style.display = 'block';
+    // rightFeedback.style.display = 'block';
     rightFeedback.style.left = ( data.clientX + data.vector.x * 30) + "px";
     rightFeedback.style.top = ( data.clientY + data.vector.y * 30) + "px";
 });
