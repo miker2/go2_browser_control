@@ -13,5 +13,6 @@ dependencies:
   - pip
   - pip:
     - flup
-    - git+https://github.com/legion1581/go2_webrtc_connect.git
+    - -e git+https://github.com/legion1581/go2_webrtc_connect.git#egg=go2_webrtc_connect
+    
   

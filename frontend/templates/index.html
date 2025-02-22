@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, orientation=landscape">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connect to Robot</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
@@ -16,8 +16,14 @@
 
         <!-- Launch Zone -->
         <div id="button-container" class="launch-zone">
-            <button id="connect-button" class="launch-button">🚀 Connect</button>
+            <button id="connect-button">🚀 Connect</button>
         </div>
+
+        <div id="connecting"><div></div><div></div></div>
+
+        <div class="status-zone">
+            <p id="status-msg">Not Connected</p>
+        </div>"
 
         <script src="{{ url_for('static', filename='launch.js') }}"></script>
     </div>

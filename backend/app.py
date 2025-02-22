@@ -4,9 +4,20 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 
 import os
+import logging
+import threading
+
+import asyncio
+from go2_webrtc_driver.webrtc_driver import Go2WebRTCConnection, WebRTCConnectionMethod
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FRONTEND_DIR = os.path.abspath(os.path.join(BASE_DIR, '../frontend'))
+
+# Enable logging and add a log handler to print to the console:
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.StreamHandler())
+
 
 app = Flask(__name__,
             template_folder=os.path.join(FRONTEND_DIR, 'templates'),
@@ -14,18 +25,55 @@ app = Flask(__name__,
 socketio = SocketIO(
     app, 
     cors_allowed_origins="*", # Important for local development
-    async_mode='eventlet', 
+    # async_mode='eventlet', 
 )
 
-@socketio.on('connect-to-robot')
-def handle_connect(data):
-    print('Client connected')
-    # Execute the code here to connect to the WebRTC client and
-    # Display info to the user during the connection process.
-    # Once the connection is established, send a message to the client
-    # and render the control.html template.
+async def connect_to_robot():
+    print("+++++ debug 1.....")
+    try:
+        conn = Go2WebRTCConnection(WebRTCConnectionMethod.LocalSTA, ip="192.168.123.161")
+        logging.info('Attempting to conect to robot...')
 
-    emit('render_response', { 'data': "connection info here!" })
+        print("+++++ debug 2.....")
+        async with asyncio.timeout(15):  # Timeout after 30 seconds
+            await conn.connect()
+
+        print("+++++ connection attempt complete .....")
+        return True
+    except ValueError as e:
+        print(f"Error: {e}")    
+        return False
+    except asyncio.TimeoutError:
+        print("Connection attempt timed out!")
+        return False
+
+def run_async_loop(queue):
+    print("+++++ run_async_loop +++++")
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+    async def main():
+        result = await connect_to_robot()
+        queue.put(result)
+
+    loop.run_until_complete(main())
+
+@socketio.on('connect_webrtc')
+def handle_connect(data):
+    print("+++++ handle_connect +++++")
+    import queue
+    result_queue = queue.Queue()
+    thread = threading.Thread(target=run_async_loop, args=(result_queue,))
+    print("+++++ Starting thread +++++")
+    thread.start()
+    thread.join()
+    print("+++++ Thread joined +++++")
+    result = result_queue.get()
+    
+    emit('connection_response', { 'connected': result })
+    
+    if not result:
+        print("Error connecting to robot!") 
 
 @socketio.on('joystick')
 def handle_joystick(data):
