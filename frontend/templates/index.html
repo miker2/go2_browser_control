@@ -7,7 +7,7 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
     
-    <link rel="stylesheet" href="{{ url_for('static', filename='connect_style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='/connect_style.css') }}">
 </head>
 <body>
     <div id="content">
@@ -25,7 +25,7 @@
             <p id="status-msg">Not Connected</p>
         </div>"
 
-        <script src="{{ url_for('static', filename='launch.js') }}"></script>
+        <script src="{{ url_for('static', path='/launch.js') }}"></script>
     </div>
 </body>
 </html>
