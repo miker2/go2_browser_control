@@ -48,7 +48,6 @@ sudo ln -s "/etc/nginx/sites-available/robot-control" "/etc/nginx/sites-enabled/
 sudo rm "/etc/nginx/sites-enabled/default"  # Remove default site
 sudo systemctl restart nginx
 
-
 # Copy frontend files (Optional - if you're serving them directly)
 # If you are using a reverse proxy like nginx, you may skip this step.
 # echo "Copying frontend files (optional - skip if using reverse proxy)..."

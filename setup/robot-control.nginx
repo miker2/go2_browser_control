@@ -3,7 +3,7 @@ server {
     server_name _;
 
     location / {
-        proxy_pass http://127.0.0.1:5000;
+        proxy_pass http://127.0.0.1:8000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -13,6 +13,6 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    error_log /var/log/nginx/flask_error.log;
-    access_log /var/log/nginx/flask_access.log;
+    error_log /var/log/nginx/fastapi_error.log;
+    access_log /var/log/nginx/fastapi_access.log;
 }

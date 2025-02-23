@@ -14,4 +14,4 @@ conda activate go2-web-control
 cd "$SCRIPT_DIR"
 
 # Start the backend server
-exec gunicorn --workers 1 --worker-class eventlet -b 127.0.0.1:5000 app:app
+exec uvicorn main:app --host 0.0.0.0 --port 8000
