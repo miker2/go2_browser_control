@@ -9,7 +9,7 @@ server.modules += ( "mod_static" )
 
 # Static files (HTML, CSS, JS)
 static-file.exclude-extensions = ( ".php", ".py", "~", ".inc" ) # Example, add more if needed
-server.document-root = "{{ project_path }}/frontend" 
+server.document-root = "{{ project_path }}/frontend"
 
 # Flask application (using FastCGI)
 fastcgi.server = (

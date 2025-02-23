@@ -6,6 +6,8 @@ function isTouchDevice() {
 
 let leftFeedback = document.getElementById('joystick-feedback-left');
 let rightFeedback = document.getElementById('joystick-feedback-right');
+console.log("Websocket will be opened at: " + window.location.host);
+var ws = new WebSocket('ws://' + window.location.host + '/joystick');
 
 function createJoystick(side, color, signal, feedback) {
     var joystick = nipplejs.create({
@@ -14,9 +16,17 @@ function createJoystick(side, color, signal, feedback) {
         mode: 'dynamic'
     });
 
+    function sendData(x, y) {
+        ws.send(JSON.stringify({side: side,
+                                signal: signal,
+                                x: x,
+                                y: y
+        }));
+    }
+
     joystick.on('move', function(evt, data) {
         console.log(side + " Joystick Move", data);
-        // socket.emit(signal, { x: data.vector.x, y: data.vector.y });
+        sendData(data.vector.x, data.vector.y);
 
         feedback.style.display = 'block';
         feedback.style.left = ( data.position.x + data.vector.x * 30) + "px";
@@ -25,8 +35,8 @@ function createJoystick(side, color, signal, feedback) {
 
     joystick.on('end', function() {
         console.log(side + " Joystick End");
-        // socket.emit("joystick_destroy", { side: side });
         feedback.style.display = 'none';
+        sendData(0.0, 0.0)
     });
 }
 
@@ -34,14 +44,29 @@ var leftJoystick = createJoystick('left', 'blue', 'move', leftFeedback);
 var rightJoystick = createJoystick('right', 'red', 'rotate', rightFeedback);
 
 
-document.getElementById('joystick-zone-left').addEventListener('touchend', function(event) {
-    // socket.emit("joystick_destroy", { side: "left", joystick: !!leftJoystick });
-});
+document.getElementById('joystick-zone-left').addEventListener('touchend', () => {});
 
-document.getElementById('joystick-zone-right').addEventListener('touchend', function(event) {
-    // socket.emit("joystick_destroy", { side: "right", joystick: !!rightJoystick });
-});
+document.getElementById('joystick-zone-right').addEventListener('touchend', () => {});
 
+
+async function awaitCommandResponse(cmd_data) {
+    console.log('Sending command:', cmd_data);
+
+    try {
+        const response = await fetch('/command', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(cmd_data)
+        })
+
+        const data = await response.json();
+        console.log('Data:', data);
+    } catch (error) {
+        console.error('Caught Error:', error)
+    }
+}
 
 // Button Events
 var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -64,7 +89,7 @@ document.getElementById('voice-button').addEventListener('click', function() {
     recognition.onresult = function(event) {
         let command = event.results[0][0].transcript;
         console.log('Voice Command:', command);
-        // socket.emit('voice', { command: command });
+        awaitCommandResponse({ type: "voice", command: command });
         button.classList.remove("listening");
     };
 
@@ -78,7 +103,7 @@ document.getElementById('voice-button').addEventListener('click', function() {
     };
 });
 
-function setupButton(buttonId, eventName, hold) {
+function setupButton(buttonId, command, hold) {
     var touch_start = 'mousedown';
     var touch_end = 'mouseup';
     if (isTouchDevice()) {
@@ -89,7 +114,7 @@ function setupButton(buttonId, eventName, hold) {
     button.addEventListener(touch_start, function() {
         this.classList.add("active");
         if (hold) {
-            console.log(eventName, 'pressed');
+            console.log(command, 'pressed');
             // socket.emit(eventName, { pressed: true });
         }
     });
@@ -97,16 +122,16 @@ function setupButton(buttonId, eventName, hold) {
     button.addEventListener(touch_end, function() {
         this.classList.remove("active");
         if (hold) {
-            console.log(eventName, 'released');
+            console.log(command, 'released');
             // socket.emit(eventName, { pressed: false });
         }
     });
 
     if (!hold) {
         button.addEventListener('click', function() {
-            console.log(eventName, 'clicked');
-            // socket.emit(eventName, { pressed: true });
-        });    
+            console.log(command, 'clicked');
+            awaitCommandResponse({ type: "action", command: command });
+        });
     }
 }
 
@@ -117,5 +142,5 @@ setupButton('stand-button', 'BalanceStand', false);
 document.getElementById('execute-button').addEventListener('click', function() {
     let command = document.getElementById('action-select').value;
     console.log('Command:', command);
-    // socket.emit('command', { command: command });
+    awaitCommandResponse({ type: "action", command: command });
 });

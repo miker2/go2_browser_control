@@ -7,13 +7,17 @@ function isTouchDevice() {
        (navigator.msMaxTouchPoints > 0));
 }
 
-status_msg = document.getElementById('status-msg')
-busy_wait = document.getElementById('connecting')
+connect_button = document.getElementById("connect-button");
+status_msg = document.getElementById('status-msg');
+busy_wait = document.getElementById('connecting');
 
 async function awaitConnectionResponse() {
     console.log('Ready to connect');
     status_msg.innerText = 'Connecting...';
     busy_wait.classList.add("lds-ripple");
+    // Disable the 'connect' button while trying to connect so the
+    // user can't click it again:
+    connect_button.setAttribute('disabled', '');
 
     try {
         const response = await fetch('/connect', { method: 'POST' });
@@ -40,6 +44,7 @@ async function awaitConnectionResponse() {
                 alert('Connection failed! Ensure robot is on and try again.');
             }, 100);
 
+            connect_button.removeAttribute('disabled');
             console.error("Error: ", data.error);
         }
     } catch (error) {
@@ -48,9 +53,10 @@ async function awaitConnectionResponse() {
         // Reset the connection status:
         status_msg.innerText = 'Not Connected';
         busy_wait.classList.remove("lds-ripple");
+        connect_button.removeAttribute('disabled');
 
         // Handle fetch error
     }
 }
 
-document.getElementById('connect-button').addEventListener('click', awaitConnectionResponse);
+connect_button.addEventListener('click', awaitConnectionResponse);

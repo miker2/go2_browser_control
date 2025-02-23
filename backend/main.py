@@ -1,16 +1,17 @@
-from fastapi import FastAPI, WebSocket, Request
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-import asyncio
 
+import asyncio
+import json
 import os
 
 from go2_webrtc_driver.webrtc_driver import (
-    # Go2WebRTCConnection, 
+    # Go2WebRTCConnection,
     WebRTCConnectionMethod
 )
 from go2_webrtc_driver.constants import SPORT_CMD
-from thefuzz import process
+from thefuzz import fuzz, process
 import utils
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -72,47 +73,66 @@ async def async_connect_to_robot():
         print(f"Error: {e}")
         return {"error": str(e)}
 
-def handle_action(data: dict):
-    print(f"Action data: {data}")
+def handle_action(command: str):
+    print(f"Action data: {command}")
     # ... robot control logic ...
     # TODO: Send the command via the webrtc connection
 
-
     # Wait for response from robot to ensure mode has changed as expected
-
 
     return {"status": "OK"}
 
-def handle_voice(data: dict):
-    print(f"Voice data: {data}")
+def handle_voice(voice_str: str):
+    print(f"Voice data: {voice_str}")
     res = process.extractOne(
-        utils.snake_to_upper_camel(data["command"].replace(" ", "_")), 
-        SPORT_CMD.keys()
+        utils.snake_to_upper_camel(voice_str.replace(" ", "_")),
+        SPORT_CMD.keys(),
+        scorer=fuzz.partial_token_sort_ratio,
     )
     print(f"Matched command: {res}")
     cmd, match_ratio = res
     if match_ratio < 75:
-        return {"error": "Command not recognized"}
+        return {"error": f"Command not recognized. Received: {voice_str}, Result {res}"}
     # ... voice control logic ...
-    return handle_action({"action": res[0]})
+    return handle_action(res[0])
 
 @app.post("/command")
 async def command(data: dict):
     print(f"Action data: {data}")
+    print("type: ", data.get("type"))
     match data.get("type"):
         case "action":
             return handle_action(data.get("command"))
         case "voice":
-            return handle_voice(data.get("speech"))
+            return handle_voice(data.get("command"))
         case _:
-            return {"error": "Invalid command type"}
+            return {"error": f"Invalid command type: ({data.get('type')})"}
 
-# @app.websocket("/joystick")
-# async def websocket_endpoint(websocket: WebSocket):
-#     await websocket.accept()
-#     while True:
-#         data = await websocket.receive_text()
-#         await websocket.send_text(f"Message text was: {data}")
+@app.websocket("/joystick")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    print("Websocket connection established")
+    try:
+        while True:
+            data = await websocket.receive_text()
+            # Convert the received data to a dictionary
+            data = json.loads(data)
+            print(f"Joystick data: {data}")
+            match data.get("signal"):
+                case "move":
+                    # forward, backward, left, right
+                    pass
+                case "rotate":
+                    # yaw and pitch
+                    pass
+                case _:
+                    print("Unknown signal type!")
+
+            # Perhaps here we can subscribe to the sport mode state topic and
+            # display some useful information to the user
+            # await websocket.send_text(f"WS: {data}")
+    except WebSocketDisconnect:
+        print("Websocket disconnected")
 
 
 if __name__ == "__main__":

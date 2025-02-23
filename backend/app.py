@@ -24,9 +24,9 @@ app = Flask(__name__,
             template_folder=os.path.join(FRONTEND_DIR, 'templates'),
             static_folder=os.path.join(FRONTEND_DIR, 'static'))
 socketio = SocketIO(
-    app, 
+    app,
     cors_allowed_origins="*", # Important for local development
-    # async_mode='eventlet', 
+    # async_mode='eventlet',
 )
 
 async def connect_to_robot(task_id, *args, **kwargs):
@@ -44,7 +44,7 @@ async def connect_to_robot(task_id, *args, **kwargs):
         connected = True
         # socketio.emit('connection_response', { 'connected': True }, room=task_id)
     except ValueError as e:
-        print(f"===== Error: {e}")    
+        print(f"===== Error: {e}")
         connected = False
         # socketio.emit('connection_response', { 'connected': False }, room=task_id)
     except asyncio.TimeoutError:
@@ -59,7 +59,7 @@ def handle_connection(*args, **kwargs):
         task_id = str(time.time())
         session['task_id'] = task_id
     print(f"+++++ handle_connecion: task_id={task_id} +++++")
-    
+
     asyncio.run(connect_to_robot(task_id, *args, **kwargs))
     # socketio.start_background_task(asyncio.to_thread, connect_to_robot, task_id, *args, **kwargs)
 
