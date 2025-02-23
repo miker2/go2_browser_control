@@ -8,6 +8,7 @@ dependencies:
   - jinja2
   - netifaces
   - requests
+  - thefuzz
   - pip
   - pip:
     - flup

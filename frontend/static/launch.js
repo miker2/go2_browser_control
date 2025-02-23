@@ -7,11 +7,13 @@ function isTouchDevice() {
        (navigator.msMaxTouchPoints > 0));
 }
 
+status_msg = document.getElementById('status-msg')
+busy_wait = document.getElementById('connecting')
+
 async function awaitConnectionResponse() {
     console.log('Ready to connect');
-    document.getElementById('status-msg').innerText = 'Connecting...';
-    element = document.getElementById('connecting');
-    element.classList.add("lds-ripple");
+    status_msg.innerText = 'Connecting...';
+    busy_wait.classList.add("lds-ripple");
 
     try {
         const response = await fetch('/connect', { method: 'POST' });
@@ -22,22 +24,31 @@ async function awaitConnectionResponse() {
 
         if (data.connected) {
             console.log("Connected to robot!");
-            document.getElementById('status-msg').innerText = 'Connected!';
-            // sleep for 5 seconds
+            status_msg.innerText = 'Connected!';
+            // sleep for 2 seconds
             setTimeout(function() {
                 window.location.href = '/control';
             }
-            , 5000);
+            , 2000);
         } else {
-            console.error("Error: ", data.error);
-            // Notify the user that the connection failed via a popup alert
-            alert('Connection failed. Please try again.');
             // Reset the connection status:
-            document.getElementById('status-msg').innerText = 'Connection failed. Please try again.';
-            document.getElementById('connecting').classList.remove("lds-ripple");
+            status_msg.innerText = 'Not Connected';
+            busy_wait.classList.remove("lds-ripple");
+
+            setTimeout(() => {
+                // Notify the user that the connection failed via a popup alert
+                alert('Connection failed! Ensure robot is on and try again.');
+            }, 100);
+
+            console.error("Error: ", data.error);
         }
     } catch (error) {
-        console.error('Error:', error)
+        console.error('Caught Error:', error)
+
+        // Reset the connection status:
+        status_msg.innerText = 'Not Connected';
+        busy_wait.classList.remove("lds-ripple");
+
         // Handle fetch error
     }
 }

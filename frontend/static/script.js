@@ -1,5 +1,3 @@
-var socket = io();
-
 function isTouchDevice() {
     return (('ontouchstart' in window) ||
        (navigator.maxTouchPoints > 0) ||
@@ -18,7 +16,7 @@ function createJoystick(side, color, signal, feedback) {
 
     joystick.on('move', function(evt, data) {
         console.log(side + " Joystick Move", data);
-        socket.emit(signal, { x: data.vector.x, y: data.vector.y });
+        // socket.emit(signal, { x: data.vector.x, y: data.vector.y });
 
         feedback.style.display = 'block';
         feedback.style.left = ( data.position.x + data.vector.x * 30) + "px";
@@ -27,7 +25,7 @@ function createJoystick(side, color, signal, feedback) {
 
     joystick.on('end', function() {
         console.log(side + " Joystick End");
-        socket.emit("joystick_destroy", { side: side });
+        // socket.emit("joystick_destroy", { side: side });
         feedback.style.display = 'none';
     });
 }
@@ -37,11 +35,11 @@ var rightJoystick = createJoystick('right', 'red', 'rotate', rightFeedback);
 
 
 document.getElementById('joystick-zone-left').addEventListener('touchend', function(event) {
-    socket.emit("joystick_destroy", { side: "left", joystick: !!leftJoystick });
+    // socket.emit("joystick_destroy", { side: "left", joystick: !!leftJoystick });
 });
 
 document.getElementById('joystick-zone-right').addEventListener('touchend', function(event) {
-    socket.emit("joystick_destroy", { side: "right", joystick: !!rightJoystick });
+    // socket.emit("joystick_destroy", { side: "right", joystick: !!rightJoystick });
 });
 
 
@@ -66,7 +64,7 @@ document.getElementById('voice-button').addEventListener('click', function() {
     recognition.onresult = function(event) {
         let command = event.results[0][0].transcript;
         console.log('Voice Command:', command);
-        socket.emit('voice', { command: command });
+        // socket.emit('voice', { command: command });
         button.classList.remove("listening");
     };
 
@@ -92,7 +90,7 @@ function setupButton(buttonId, eventName, hold) {
         this.classList.add("active");
         if (hold) {
             console.log(eventName, 'pressed');
-            socket.emit(eventName, { pressed: true });
+            // socket.emit(eventName, { pressed: true });
         }
     });
 
@@ -100,24 +98,24 @@ function setupButton(buttonId, eventName, hold) {
         this.classList.remove("active");
         if (hold) {
             console.log(eventName, 'released');
-            socket.emit(eventName, { pressed: false });
+            // socket.emit(eventName, { pressed: false });
         }
     });
 
     if (!hold) {
         button.addEventListener('click', function() {
             console.log(eventName, 'clicked');
-            socket.emit(eventName, { pressed: true });
+            // socket.emit(eventName, { pressed: true });
         });    
     }
 }
 
 setupButton('action-button', 'action', true);
-setupButton('sit-button', 'sit', false);
-setupButton('stand-button', 'stand', false);
+setupButton('sit-button', 'Sit', false);
+setupButton('stand-button', 'BalanceStand', false);
 
 document.getElementById('execute-button').addEventListener('click', function() {
     let command = document.getElementById('action-select').value;
     console.log('Command:', command);
-    socket.emit('command', { command: command });
+    // socket.emit('command', { command: command });
 });

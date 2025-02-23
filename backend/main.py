@@ -59,7 +59,7 @@ async def connect_to_robot():
 async def async_connect_to_robot():
     try:
         # Wait for the connect_to_robot task to complete with a timeout:
-        result = await asyncio.wait_for(connect_to_robot(), timeout=15)
+        result = await asyncio.wait_for(connect_to_robot(), timeout=25)
         print(f"Connection result: {result=}")
         return result  # Return the result of the connection attemp
     except asyncio.TimeoutError:
@@ -69,9 +69,42 @@ async def async_connect_to_robot():
         print(f"Error: {e}")
         return {"error": str(e)}
 
+def handle_action(data: dict):
+    print(f"Action data: {data}")
+    # ... robot control logic ...
+    # TODO: Send the command via the webrtc connection
 
 
-# @app.websocket("/ws")
+    # Wait for response from robot to ensure mode has changed as expected
+
+
+    return {"status": "OK"}
+
+def handle_voice(data: dict):
+    print(f"Voice data: {data}")
+    res = process.extractOne(
+        utils.snake_to_upper_camel(data["command"].replace(" ", "_")), 
+        SPORT_CMD.keys()
+    )
+    print(f"Matched command: {res}")
+    cmd, match_ratio = res
+    if match_ratio < 75:
+        return {"error": "Command not recognized"}
+    # ... voice control logic ...
+    return handle_action({"action": res[0]})
+
+@app.post("/command")
+async def command(data: dict):
+    print(f"Action data: {data}")
+    match data.get("type"):
+        case "action":
+            return handle_action(data.get("command"))
+        case "voice":
+            return handle_voice(data.get("speech"))
+        case _:
+            return {"error": "Invalid command type"}
+
+# @app.websocket("/joystick")
 # async def websocket_endpoint(websocket: WebSocket):
 #     await websocket.accept()
 #     while True:
