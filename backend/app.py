@@ -1,11 +1,12 @@
 # import eventlet
 # from eventlet import wsgi
-from flask import Flask, render_template
+from flask import Flask, render_template, session
 from flask_socketio import SocketIO, emit
 
 import os
 import logging
 import threading
+import time
 
 import asyncio
 from go2_webrtc_driver.webrtc_driver import Go2WebRTCConnection, WebRTCConnectionMethod
@@ -28,52 +29,39 @@ socketio = SocketIO(
     # async_mode='eventlet', 
 )
 
-async def connect_to_robot():
-    print("+++++ debug 1.....")
+async def connect_to_robot(task_id, *args, **kwargs):
+    print(f"+++++ connect_to_robot() called - {task_id=} .....")
+    connected = False
     try:
-        conn = Go2WebRTCConnection(WebRTCConnectionMethod.LocalSTA, ip="192.168.123.161")
+        connection = Go2WebRTCConnection(WebRTCConnectionMethod.LocalSTA, ip="192.168.123.161")
         logging.info('Attempting to conect to robot...')
 
         print("+++++ debug 2.....")
         async with asyncio.timeout(15):  # Timeout after 30 seconds
-            await conn.connect()
+            await connection.connect()
 
         print("+++++ connection attempt complete .....")
-        return True
+        connected = True
+        # socketio.emit('connection_response', { 'connected': True }, room=task_id)
     except ValueError as e:
-        print(f"Error: {e}")    
-        return False
+        print(f"===== Error: {e}")    
+        connected = False
+        # socketio.emit('connection_response', { 'connected': False }, room=task_id)
     except asyncio.TimeoutError:
-        print("Connection attempt timed out!")
-        return False
-
-def run_async_loop(queue):
-    print("+++++ run_async_loop +++++")
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-
-    async def main():
-        result = await connect_to_robot()
-        queue.put(result)
-
-    loop.run_until_complete(main())
+        print("===== Connection attempt timed out!")
+        connected = False
+    socketio.emit('connection_response', { 'connected': connected }, room=task_id)
 
 @socketio.on('connect_webrtc')
-def handle_connect(data):
-    print("+++++ handle_connect +++++")
-    import queue
-    result_queue = queue.Queue()
-    thread = threading.Thread(target=run_async_loop, args=(result_queue,))
-    print("+++++ Starting thread +++++")
-    thread.start()
-    thread.join()
-    print("+++++ Thread joined +++++")
-    result = result_queue.get()
+def handle_connection(*args, **kwargs):
+    task_id = session.get('task_id')
+    if not task_id:
+        task_id = str(time.time())
+        session['task_id'] = task_id
+    print(f"+++++ handle_connecion: task_id={task_id} +++++")
     
-    emit('connection_response', { 'connected': result })
-    
-    if not result:
-        print("Error connecting to robot!") 
+    asyncio.run(connect_to_robot(task_id, *args, **kwargs))
+    # socketio.start_background_task(asyncio.to_thread, connect_to_robot, task_id, *args, **kwargs)
 
 @socketio.on('joystick')
 def handle_joystick(data):
@@ -82,6 +70,12 @@ def handle_joystick(data):
     y = data['y']
     print(f"Joystick {joystick}: x={x}, y={y}")
     # ... robot control logic ...
+
+@socketio.on('connect')
+def handle_connect():
+    task_id = session.get('task_id')
+    if task_id:
+        socketio.join_room(task_id)
 
 @app.route('/')
 def index():
