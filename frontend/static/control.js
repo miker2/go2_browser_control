@@ -135,9 +135,9 @@ function setupButton(buttonId, command, hold) {
     }
 }
 
-setupButton('action-button', 'action', true);
-setupButton('sit-button', 'Sit', false);
-setupButton('stand-button', 'BalanceStand', false);
+setupButton('action-button', 'Dance2', false);
+setupButton('sit-button', 'StandDown', false);
+setupButton('stand-button', 'RecoveryStand', false);
 
 document.getElementById('execute-button').addEventListener('click', function() {
     let command = document.getElementById('action-select').value;
